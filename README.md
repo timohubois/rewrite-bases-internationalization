@@ -1,6 +1,6 @@
 # Rewrite Bases Internationalization for WordPress
 
-Internationalize rewrite bases for author, search, comments, and pagination in WordPress.
+Internationalize rewrite bases for author, search, comments, and page slugs in WordPress.
 
 The Plugin extends the native **Permalinks** settings pages and adds a section to change the rewrite bases for author, search, comments, and pagination.
 

@@ -9,7 +9,6 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-require_once 'rewrite-bases-i18n.php';
+require_once 'classes/Plugin.php';
 
-$instance = new RewriteBasesI18n();
-$instance->uninstall();
+RewriteBasesI18n\Plugin::uninstall();

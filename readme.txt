@@ -8,16 +8,16 @@ Stable tag: 1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Internationalize rewrite bases for author, search, comments, and pagination in WordPress.
+Internationalize rewrite bases for author, search, comments, and page slugs in WordPress.
 
 == Description ==
 
-This plugin allows you to customize and internationalize the rewrite bases for author archives, search results, comments, and pagination in WordPress. It provides an easy-to-use interface in the Permalinks Settings page to set custom values for these bases.
+This plugin allows you to customize and internationalize the rewrite bases for author archives, search results, comments, and page slugs in WordPress. It provides an easy-to-use interface in the Permalinks Settings page to set custom values for these bases.
 
 Key features:
 
-* Customize rewrite bases for author, search, comments, and pagination
-* Automatically uses WordPress's language-specific terms as defaults
+* Customize rewrite bases for author, search, comments and page slugs
+* Automatically uses WordPress's language-specific terms as defaults, if available
 * Integrates seamlessly with the WordPress Permalinks Settings page
 
 == Installation ==
@@ -36,9 +36,9 @@ After activating the plugin, go to Settings > Permalinks. You'll find a new sect
 
 If you leave a field blank, the plugin will use WordPress's default language-specific term for that base.
 
-= Does this plugin with WMPL or other translation plugins =
+= Does this plugin work with WMPL or other translation plugins? =
 
-This plugins is currently not tested with WMPL or other translation plugins or support them.
+This plugins is currently not tested with WMPL or other translation plugins and does not support them.
 
 == Changelog ==
 
