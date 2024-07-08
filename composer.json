@@ -1,0 +1,37 @@
+{
+    "name": "timohubois/rewrite-bases-i18n-for-wordpress",
+    "description": "Internationalization of rewrite bases for author, search, comments and pagination.",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Timo Hubois",
+            "email": "t.hubois@pixelsaft.de"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "process-timeout": 2000,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "php-stubs/wordpress-stubs": "^6.4",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "wp-cli/wp-cli-bundle": "^2.8",
+        "wp-coding-standards/wpcs": "^3.0"
+    },
+    "scripts": {
+        "php:lint": "vendor/bin/phpcs --standard=phpcs.xml .",
+        "php:lint:fix": "vendor/bin/phpcbf --standard=phpcs.xml .",
+        "rector:run": "vendor/bin/rector process"
+    }
+}
