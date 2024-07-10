@@ -1,6 +1,6 @@
 {
     "name": "timohubois/rewrite-bases-i18n-for-wordpress",
-    "description": "Internationalization of rewrite bases for author, search, comments and pagination.",
+    "description": "Internationalize rewrite bases for author, search, comments, and page slugs in WordPress.",
     "type": "wordpress-plugin",
     "license": "GPL-3.0-or-later",
     "authors": [
@@ -26,8 +26,14 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "php-stubs/wordpress-stubs": "^6.4",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "rector/rector": "^1.2",
         "wp-cli/wp-cli-bundle": "^2.8",
         "wp-coding-standards/wpcs": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "RewriteBasesI18n\\": "classes/"
+        }
     },
     "scripts": {
         "php:lint": "vendor/bin/phpcs --standard=phpcs.xml .",
