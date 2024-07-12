@@ -3,6 +3,7 @@
 namespace RewriteBasesI18n\Features;
 
 defined('ABSPATH') || exit;
+
 class RewriteBaseLocalizer
 {
     private const OPTION_PREFIX = 'rewrite-bases-internationalization_rewrite_bases_';
