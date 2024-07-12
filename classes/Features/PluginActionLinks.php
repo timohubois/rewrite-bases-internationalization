@@ -8,7 +8,7 @@ final class PluginActionLinks
 {
     public function __construct()
     {
-        add_filter('plugin_action_links_' . plugin_basename(REWRITE_BASES_I18N_PLUGIN_FILE), [$this, 'addActionLinks']);
+        add_filter('plugin_action_links_' . plugin_basename(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE), [$this, 'addActionLinks']);
     }
 
     /**
