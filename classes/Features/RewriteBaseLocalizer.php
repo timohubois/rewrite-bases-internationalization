@@ -5,14 +5,23 @@ namespace RewriteBasesI18n\Features;
 defined('ABSPATH') || exit;
 class RewriteBaseLocalizer
 {
-    private const OPTION_PREFIX = 'rewrite-bases-i18n_rewrite_bases_';
-    private const NONCE_ACTION = 'rewrite-bases-i18n_update_option';
-    private const NONCE_NAME = 'rewrite-bases-i18n_nonce';
+    private const OPTION_PREFIX = 'rewrite-bases-internationalization_rewrite_bases_';
+    private const NONCE_ACTION = 'rewrite-bases-internationalization_update_option';
+    private const NONCE_NAME = 'rewrite-bases-internationalization_nonce';
 
+    /**
+     * Array of rewrite bases.
+     *
+     * The keys are the hardcoded rewrite bases from the WordPress core WP_Rewrite class.
+     * The values are used as identifiers for the plugin options.
+     *
+     * @var array $bases Array of rewrite bases.
+     */
     private array $bases = [
         'author' => 'author_base',
         'search' => 'search_base',
         'comments' => 'comments_base',
+        'comment-page' => 'comment-page_base',
         'page' => 'pagination_base'
     ];
 
@@ -70,7 +79,7 @@ class RewriteBaseLocalizer
 
         add_settings_section(
             self::OPTION_PREFIX . 'rewrite_bases',
-            __('Rewrite Bases', 'rewrite-bases-i18n'),
+            __('Rewrite Bases', 'rewrite-bases-internationalization'),
             [$this, 'renderSectionDescription'],
             'permalink'
         );
@@ -154,8 +163,8 @@ class RewriteBaseLocalizer
     public function renderSectionDescription(): void
     {
         echo '<p>';
-        esc_html_e('Enter custom rewrite bases for author, search, comments and pagination.', 'rewrite-bases-i18n');
-        esc_html_e('Blank inputs will default to WordPress’s language-specific terms.', 'rewrite-bases-i18n');
+        esc_html_e('Enter custom rewrite bases for author, search, comments and pagination.', 'rewrite-bases-internationalization');
+        esc_html_e('Blank inputs will default to WordPress’s language-specific terms.', 'rewrite-bases-internationalization');
         echo '</p>';
     }
 
@@ -181,13 +190,17 @@ class RewriteBaseLocalizer
             echo '<code>' . esc_url(home_url('/')) . '</code>';
         } elseif ($key === 'comments') {
             echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
+        } elseif ($key === 'comment-page') {
+            echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
         } else {
-            echo '<code>' . esc_url(home_url('/')) . '/</code>';
+            echo '<code>' . esc_url(home_url('/')) . '</code>';
         }
 
         echo '<input type="text" id="' . esc_attr($optionName) . '" name="' . esc_attr($optionName) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($default['value']) . '">';
 
         if ($key === 'page') {
+            echo '<code>/2/</code>';
+        } elseif ($key === 'comment-page') {
             echo '<code>/2/</code>';
         } elseif ($key === 'author') {
             echo '<code>/%authorname%/</code>';
@@ -197,8 +210,8 @@ class RewriteBaseLocalizer
 
         echo '<p class="description">';
         printf(
-            // translators: 1: WordPress Core default value, 2: Internationalized value, 3: Translation of the original value, 4: Source of the translation
-            esc_html__('WordPress Core default value: %1$s | Internationalized %2$s: %3$s (Translation of: %3$s, Source: %4$s)', 'rewrite-bases-i18n'),
+            // translators: 1: WordPress Core default value, 2: Internationalized value, 3: Internationalized value (translation), 4: Original value, 5: Translation source
+            esc_html__('WordPress Core default value: %1$s | Internationalized %2$s: %3$s (Translation of: %4$s, Source: %5$s)', 'rewrite-bases-internationalization'),
             '<code>' . esc_html($default['native']) . '</code>',
             esc_html(get_locale()),
             '<code>' . esc_html($default['value']) . '</code>',
@@ -239,6 +252,7 @@ class RewriteBaseLocalizer
             'author' => ['Author', __('Author'), 'WordPress Core'],
             'search' => ['Search', __('Search'), 'WordPress Core'],
             'comments' => ['Comments', __('Comments'), 'WordPress Core'],
+            'comment-page' => ['Comment Page', __('Comment') . ' ' . _x('Page', 'post type singular name'), 'WordPress Core'],
             'page' => ['Page', _x('Page', 'post type singular name'), 'WordPress Core']
         ];
 
@@ -246,7 +260,7 @@ class RewriteBaseLocalizer
         $source = $defaults[$key][2];
 
         return [
-            'value' => remove_accents(mb_strtolower($translated)),
+            'value' => sanitize_title($translated),
             'original' => $translated,
             'native' => $key,
             'source' => $source

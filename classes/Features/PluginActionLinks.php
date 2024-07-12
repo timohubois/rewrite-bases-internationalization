@@ -19,7 +19,7 @@ final class PluginActionLinks
      */
     public function addActionLinks(array $links): array
     {
-        array_unshift($links, '<a href="options-permalink.php">' . __('Permalinks Settings', 'rewrite-bases-i18n') . '</a>');
+        array_unshift($links, '<a href="options-permalink.php">' . __('Permalinks Settings', 'rewrite-bases-internationalization') . '</a>');
         return $links;
     }
 }

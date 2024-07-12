@@ -9,7 +9,7 @@
  * Requires PHP:      8.0
  * Author:            Timo Hubois
  * Author URI:        https://pixelsaft.wtf
- * Text Domain:       rewrite-bases-i18n
+ * Text Domain:       rewrite-bases-internationalization
  * Domain Path:       /languages
  * License:           GPLv3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
