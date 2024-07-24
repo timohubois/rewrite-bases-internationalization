@@ -29,11 +29,11 @@ If you notice that your permalink changes aren't reflecting on your site, try th
 Internationalized rewrite bases for author, search, comments and page (pagination) in WordPress are not part of the WordPress Core. This is because the [WP_Rewrite](https://github.com/WordPress/wordpress-develop/blob/6.5/src/wp-includes/class-wp-rewrite.php) class uses [hardcoded strings](https://github.com/WordPress/wordpress-develop/blob/c26d2a30d5fbff5bc8fd613f9862a2bcc9c3e62b/src/wp-includes/class-wp-rewrite.php#L49) which were never translated until 2024. There is an old ticket ([#1762](https://core.trac.wordpress.org/ticket/1762)) that discusses this issue, including the idea of modifying the `WP_Rewrite` property with a plugin. This plugin implements that solution. It extends the native Permalinks settings page and adds a section to change the rewrite bases for author, search, comments and page (pagination). By default, these are based on the current language of your site.
 
 == Want to contribute? ==
-Check out the Plugin [GitHub Repository](https://github.com/timohubois/rewrite-bases-i18n-for-wordpress/).
+Check out the Plugin [GitHub Repository](https://github.com/timohubois/rewrite-bases-internationalization/).
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/rewrite-bases-i18n` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/rewrite-bases-internationalization` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
 3. Go to Settings > Permalinks to configure the rewrite bases.
 
