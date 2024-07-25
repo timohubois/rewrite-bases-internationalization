@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:       Rewrite Bases Internationalization
- * Plugin URI:        https://github.com/timohubois/rewrite-bases-i18n/
+ * Plugin URI:        https://github.com/timohubois/rewrite-bases-internationalization/
  * Description:       Internationalization of rewrite bases for author, search, comments and page slugs.
  * Version:           1.0
  * Requires at least: 6.0
