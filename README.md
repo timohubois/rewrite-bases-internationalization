@@ -27,10 +27,6 @@ If you notice that your permalink changes aren't reflecting on your site, try th
 2. Perform [Installation](#installation).
 3. Run `composer i` to install composer dependency.
 
-## Listing artwork
-
-WordPress.org listing images live in [.wordpress-org/](.wordpress-org/) and are excluded from plugin ZIPs. They follow the [official plugin asset requirements](https://developer.wordpress.org/plugins/wordpress-org/plugin-assets/). Listing copy and current limitations are documented in [readme.txt](readme.txt).
-
 ## License
 
 GPLv3
