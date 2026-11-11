@@ -1,21 +1,35 @@
 name: Commit Checks
 
-on: [push]
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   lint:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      COMPOSER_CACHE_DIR: /tmp/composer-cache
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache@v4
-      with:
-        path: vendor
-        key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-    - name: Install composer
-      run: |
-        php8.3 $(which composer) install
-    - name: Run lint
-      run: |
-        composer php:lint
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+      # Cache downloads, not executable vendor contents from another branch.
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ env.COMPOSER_CACHE_DIR }}
+          key: ${{ runner.os }}-php-8.3-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.3-composer-
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Run lint
+        run: composer php:lint
