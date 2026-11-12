@@ -25,7 +25,7 @@ No other plugin, external account or Composer installation is required to run th
 - Custom values are shared across languages. This is not a multilingual content or translation plugin; WPML, Polylang and other multilingual plugins are not supported or verified for compatibility.
 - Comment pagination must be enabled in **Settings > Discussion**. A Comment-page Base of `replies` produces URLs such as `/my-post/replies-2/`; blank uses WordPress's native `comment-page` in every language. WordPress controls page numbers, comment anchors and which page uses the bare post URL. Previously ignored custom values now take effect, so review existing comment links when updating.
 - URL changes can break existing links or conflict with other routes. Test on staging, record the old paths and configure redirects separately where needed. The plugin does not create redirects for previous values or configure your web server.
-- On deactivation, saved values remain but stop being applied. Save **Settings > Permalinks** again and review links and redirects.
+- On deactivation, saved values remain but stop being applied; WordPress rebuilds its rewrite rules as needed. Review links and redirects.
 
 ## Development
 

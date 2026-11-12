@@ -66,6 +66,9 @@ class RewriteBaseLocalizer
         foreach ($this->bases as $key => $base) {
             $wp_rewrite->{$base} = $this->getOption($key) ?: $this->getDefaultValue($key)['value'];
         }
+
+        // Recompute Core's cached structures from the current bases.
+        unset($wp_rewrite->author_structure, $wp_rewrite->search_structure, $wp_rewrite->comment_feed_structure);
     }
 
     /**

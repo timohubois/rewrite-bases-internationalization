@@ -8,7 +8,7 @@ class Plugin
     public static function init(): void
     {
         new Features\PluginActionLinks();
-        new Features\RewriteBaseLocalizer();
+        Features\RewriteBaseLocalizer::init();
     }
 
     /**
@@ -16,7 +16,7 @@ class Plugin
      */
     public static function activate(): void
     {
-        self::init();
+        Features\RewriteBaseLocalizer::getInstance()->updateRewriteBases();
         flush_rewrite_rules(true);
     }
 
@@ -25,7 +25,8 @@ class Plugin
      */
     public static function deactivate(): void
     {
-        flush_rewrite_rules(true);
+        // Let WordPress rebuild rules after this plugin stops applying its bases.
+        delete_option('rewrite_rules');
     }
 
     public static function uninstall(): void
