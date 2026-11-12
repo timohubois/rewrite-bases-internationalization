@@ -9,6 +9,7 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-require_once 'classes/Plugin.php';
+require_once __DIR__ . '/classes/Features/RewriteBaseLocalizer.php';
+require_once __DIR__ . '/classes/Plugin.php';
 
 RewriteBasesI18n\Plugin::uninstall();

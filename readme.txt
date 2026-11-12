@@ -85,7 +85,7 @@ Changing an author base is a URL customization, not an access restriction. It do
 
 = What happens when I deactivate the plugin? =
 
-The plugin stops applying its custom or translated bases, and WordPress returns to its own bases unless another plugin changes them. WordPress rebuilds its rewrite rules as needed after deactivation; review links and redirects again. Saved custom values are retained on deactivation.
+The plugin stops applying its custom or translated bases, and WordPress returns to its own bases unless another plugin changes them. WordPress rebuilds its rewrite rules as needed after deactivation; review links and redirects again. Saved custom values are retained on deactivation and removed when the plugin is uninstalled.
 
 == Screenshots ==
 
