@@ -1,32 +1,47 @@
-# Rewrite Bases Internationalization for WordPress
+# Rewrite Bases Internationalization
 
-This plugin allows you to customize and internationalize the rewrite bases for author archives, search results, comments and page slugs in WordPress. It provides an easy-to-use interface in the Permalinks Settings page to set custom values for these bases.
+Rewrite Bases Internationalization lets you choose custom URL bases for author archives, search results, site-wide comment feeds and pagination in **Settings > Permalinks**. Blank fields use URL-friendly versions of translated WordPress Core labels from the active locale and installed translations.
 
-## Motivation
-
-Internationalized rewrite bases for author, search, comments and page (pagination) in WordPress are not part of the WordPress Core. This is because the [WP_Rewrite](https://github.com/WordPress/wordpress-develop/blob/6.5/src/wp-includes/class-wp-rewrite.php) class uses [hardcoded strings](https://github.com/WordPress/wordpress-develop/blob/c26d2a30d5fbff5bc8fd613f9862a2bcc9c3e62b/src/wp-includes/class-wp-rewrite.php#L49) which were never translated until 2024.
-There is an old ticket ([#1762](https://core.trac.wordpress.org/ticket/1762)) that discusses this issue, including the idea of modifying the `WP_Rewrite` property with a plugin. This plugin implements that solution. It extends the native Permalinks settings page and adds a section to change the rewrite bases for author, search, comments and page (pagination). By default, these are based on the current language of your site.
-
-If you notice that your permalink changes aren't reflecting on your site, try the following steps:
-
-1. Go to Settings > Permalinks in your WordPress admin panel.
-2. Without making any changes, click the "Save Changes" button at the bottom of the page.
+For example, change `/author/alex/` to `/autor/alex/` by choosing `autor` as the author base. Author names, post slugs and content are unchanged.
 
 ## Requirements
 
-* PHP >= 8.0
+- WordPress 6.0 or later.
+- PHP 8.0 or later.
+- A non-Plain permalink structure with working server routing.
+
+No other plugin, external account or Composer installation is required to run the plugin.
 
 ## Installation
 
-1. Make sure you have the correct [requirements](#requirements).
-2. Clone the repository and place it in `wp-content/plugins/` folder.
+1. Clone this repository into `wp-content/plugins/rewrite-bases-internationalization/`.
+2. Activate **Rewrite Bases Internationalization**. Review your URLs afterwards: blank fields apply translation-based defaults rather than necessarily retaining the original bases.
+3. Open **Settings > Permalinks** with an account allowed to manage the site's settings.
+4. In **Rewrite Bases**, enter base words or slugs, not full URLs. Leave a field blank to use its translation-based default.
+5. Click **Save Changes**, then check author archives, search links, comment feed links and pagination. If old rules remain, save the screen once more to rebuild them.
+
+## Limitations
+
+- Custom values are shared across languages. This is not a multilingual content or translation plugin; WPML, Polylang and other multilingual plugins are not supported or verified for compatibility.
+- In version 1.0, the visible **Comment-page Base** field does not change WordPress comment-pagination URLs: it assigns `comment-page_base` instead of `comments_pagination_base`. The other four settings are separate.
+- URL changes can break existing links or conflict with other routes. Test on staging, record the old paths and configure redirects separately where needed. The plugin does not create redirects for previous values or configure your web server.
+- On deactivation, saved values remain but stop being applied. Save **Settings > Permalinks** again and review links and redirects.
 
 ## Development
 
-1. Make sure you have the correct [requirements](#requirements).
-2. Perform [Installation](#installation).
-3. Run `composer i` to install composer dependency.
+Use PHP 8.3 for the Composer development tools, as CI does. Keep plugin code compatible with the PHP 8.0 runtime minimum.
+
+```sh
+composer install
+composer check-platform-reqs
+composer validate --strict
+composer php:lint
+```
+
+Composer dependencies are development tools, not runtime requirements. To inspect Rector suggestions without applying them, run `composer rector:run -- --dry-run`.
+
+For background on rewrite bases, see [Core ticket #1762](https://core.trac.wordpress.org/ticket/1762).
 
 ## License
 
-GPLv3
+GPLv3 or later. See [LICENSE](LICENSE).
