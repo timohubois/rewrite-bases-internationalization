@@ -7,37 +7,8 @@ class Plugin
 {
     public static function init(): void
     {
-        $directories = [
-            'Features',
-        ];
-
-        foreach ($directories as $directory) {
-            self::createInstances($directory);
-        }
-    }
-
-    private static function createInstances(string $directory): array
-    {
-        $baseFolder = __DIR__;
-        $baseNamespace = __NAMESPACE__;
-
-        $folderPath = $baseFolder . '/' . $directory;
-        $namespace = $baseNamespace . '\\' . $directory;
-
-        $instances = [];
-        $files = glob($folderPath . '/*.php');
-
-        foreach ($files as $filename) {
-            $className = $namespace . '\\' . basename($filename, '.php');
-
-            if (class_exists($className)) {
-                $instances[] = new $className();
-            } else {
-                error_log('Class ' . $className . ' does not exist.');
-            }
-        }
-
-        return $instances;
+        new Features\PluginActionLinks();
+        Features\RewriteBaseLocalizer::init();
     }
 
     /**
@@ -45,7 +16,7 @@ class Plugin
      */
     public static function activate(): void
     {
-        self::init();
+        Features\RewriteBaseLocalizer::getInstance()->updateRewriteBases();
         flush_rewrite_rules(true);
     }
 
@@ -54,7 +25,8 @@ class Plugin
      */
     public static function deactivate(): void
     {
-        flush_rewrite_rules(true);
+        // Let WordPress rebuild rules after this plugin stops applying its bases.
+        delete_option('rewrite_rules');
     }
 
     public static function uninstall(): void

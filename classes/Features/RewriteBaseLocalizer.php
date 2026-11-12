@@ -11,10 +11,7 @@ class RewriteBaseLocalizer
     private const NONCE_NAME = 'rewrite-bases-internationalization_nonce';
 
     /**
-     * Array of rewrite bases.
-     *
-     * The keys are the hardcoded rewrite bases from the WordPress core WP_Rewrite class.
-     * The values are used as identifiers for the plugin options.
+     * Map persistent option keys to WordPress rewrite properties.
      *
      * @var array $bases Array of rewrite bases.
      */
@@ -22,9 +19,16 @@ class RewriteBaseLocalizer
         'author' => 'author_base',
         'search' => 'search_base',
         'comments' => 'comments_base',
-        'comment-page' => 'comment-page_base',
+        'comment-page' => 'comments_pagination_base',
         'page' => 'pagination_base'
     ];
+
+    /**
+     * Default metadata calculated once per site locale in this request.
+     *
+     * @var array
+     */
+    private array $defaults = [];
 
     private static ?self $instance = null;
 
@@ -69,6 +73,9 @@ class RewriteBaseLocalizer
         foreach ($this->bases as $key => $base) {
             $wp_rewrite->{$base} = $this->getOption($key) ?: $this->getDefaultValue($key)['value'];
         }
+
+        // Recompute Core's cached structures from the current bases.
+        unset($wp_rewrite->author_structure, $wp_rewrite->search_structure, $wp_rewrite->comment_feed_structure);
     }
 
     /**
@@ -95,16 +102,19 @@ class RewriteBaseLocalizer
      */
     private function handlePostRequests(): void
     {
-        // Check for valid POST request and validate nonce.
-        if (!$this->isValidPostRequest()) {
+        // Verify the nonce before processing rewrite-base options.
+        if (!isset($_POST[self::NONCE_NAME])) {
+            return;
+        }
+
+        $nonce = sanitize_text_field(wp_unslash($_POST[self::NONCE_NAME]));
+        if (!wp_verify_nonce($nonce, self::NONCE_ACTION)) {
             return;
         }
 
         foreach ($this->bases as $key => $base) {
             $optionName = self::OPTION_PREFIX . $key . '_base';
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in isValidPostRequest.
             if (isset($_POST[$optionName])) {
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in isValidPostRequest.
                 $inputValue = sanitize_title(wp_unslash($_POST[$optionName]));
 
                 if (empty($inputValue)) {
@@ -115,21 +125,9 @@ class RewriteBaseLocalizer
                 update_option($optionName, $inputValue);
             }
         }
-    }
 
-    /**
-     * Check if the current POST request is valid.
-     *
-     * @return bool True if the request is valid, false otherwise.
-     */
-    private function isValidPostRequest(): bool
-    {
-        if (!isset($_POST[self::NONCE_NAME])) {
-            return false;
-        }
-
-        $nonce = sanitize_text_field(wp_unslash($_POST[self::NONCE_NAME]));
-        return wp_verify_nonce($nonce, self::NONCE_ACTION);
+        // Apply saved values before WordPress rebuilds the permalink rules.
+        $this->updateRewriteBases();
     }
 
     /**
@@ -163,9 +161,18 @@ class RewriteBaseLocalizer
      */
     public function renderSectionDescription(): void
     {
+        wp_nonce_field(self::NONCE_ACTION, self::NONCE_NAME, false);
+
         echo '<p>';
-        esc_html_e('Enter custom rewrite bases for author, search, comments and pagination.', 'rewrite-bases-internationalization');
-        esc_html_e('Blank inputs will default to WordPress’s language-specific terms.', 'rewrite-bases-internationalization');
+        esc_html_e(
+            'Enter custom rewrite bases for author, search, comments and pagination.',
+            'rewrite-bases-internationalization'
+        );
+        echo ' ';
+        esc_html_e(
+            'Blank inputs use translated WordPress labels; comment pagination keeps the native comment-page base.',
+            'rewrite-bases-internationalization'
+        );
         echo '</p>';
     }
 
@@ -176,45 +183,50 @@ class RewriteBaseLocalizer
      */
     public function renderSettingField(array $args): void
     {
-        wp_nonce_field(self::NONCE_ACTION, self::NONCE_NAME);
+        global $wp_rewrite;
 
         $optionName = $args['label_for'];
         $key = $args['key'];
         $value = $this->getOption($key);
         $default = $this->getDefaultValue($key);
 
-        if ($key === 'page') {
-            echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
-        } elseif ($key === 'author') {
-            echo '<code>' . esc_url(home_url('/')) . '</code>';
-        } elseif ($key === 'search') {
-            echo '<code>' . esc_url(home_url('/')) . '</code>';
-        } elseif ($key === 'comments') {
-            echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
+        $prefix = home_url('/' . $wp_rewrite->root);
+        if ($key === 'author') {
+            $prefix = home_url($wp_rewrite->front);
         } elseif ($key === 'comment-page') {
-            echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
-        } else {
-            echo '<code>' . esc_url(home_url('/')) . '</code>';
+            $prefix = home_url('%postname%/');
         }
+        echo '<code>' . esc_url($prefix) . '</code>';
 
-        echo '<input type="text" id="' . esc_attr($optionName) . '" name="' . esc_attr($optionName) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($default['value']) . '">';
+        echo '<input type="text" id="' . esc_attr($optionName)
+            . '" name="' . esc_attr($optionName)
+            . '" value="' . esc_attr($value)
+            . '" placeholder="' . esc_attr($default['value']) . '">';
 
         if ($key === 'page') {
             echo '<code>/2/</code>';
         } elseif ($key === 'comment-page') {
-            echo '<code>/2/</code>';
+            echo '<code>-2/</code>';
         } elseif ($key === 'author') {
             echo '<code>/%authorname%/</code>';
+        } elseif ($key === 'comments') {
+            echo '<code>/' . esc_html($wp_rewrite->feed_base) . '/</code>';
         } else {
             echo '<code>/</code>';
         }
 
         echo '<p class="description">';
+        /* translators: 1: WordPress Core default value, 2: Internationalized value,
+         * 3: Internationalized value (translation), 4: Original value, 5: Translation source
+         */
+        $descriptionFormat = __(
+            'WordPress Core default value: %1$s | Internationalized %2$s: %3$s (Translation of: %4$s, Source: %5$s)',
+            'rewrite-bases-internationalization'
+        );
         printf(
-            // translators: 1: WordPress Core default value, 2: Internationalized value, 3: Internationalized value (translation), 4: Original value, 5: Translation source
-            esc_html__('WordPress Core default value: %1$s | Internationalized %2$s: %3$s (Translation of: %4$s, Source: %5$s)', 'rewrite-bases-internationalization'),
+            esc_html($descriptionFormat),
             '<code>' . esc_html($default['native']) . '</code>',
-            esc_html(get_locale()),
+            esc_html($default['locale']),
             '<code>' . esc_html($default['value']) . '</code>',
             '<code>' . esc_html($default['original']) . '</code>',
             '<strong>' . esc_html($default['source']) . '</strong>',
@@ -249,22 +261,43 @@ class RewriteBaseLocalizer
      */
     private function getDefaultValue(string $key): array
     {
-        $defaults = [
-            'author' => ['Author', __('Author'), 'WordPress Core'],
-            'search' => ['Search', __('Search'), 'WordPress Core'],
-            'comments' => ['Comments', __('Comments'), 'WordPress Core'],
-            'comment-page' => ['Comment Page', __('Comment') . ' ' . _x('Page', 'post type singular name'), 'WordPress Core'],
-            'page' => ['Page', _x('Page', 'post type singular name'), 'WordPress Core']
-        ];
+        $siteLocale = get_option('WPLANG', get_locale()) ?: 'en_US';
+        if (isset($this->defaults[$siteLocale])) {
+            return $this->defaults[$siteLocale][$key];
+        }
 
-        $translated = $defaults[$key][1];
-        $source = $defaults[$key][2];
+        $switchedLocale = switch_to_locale($siteLocale);
+        if (!$switchedLocale && determine_locale() !== $siteLocale) {
+            // Match Core's English fallback when the site's language pack is unavailable.
+            $switchedLocale = switch_to_locale('en_US');
+        }
 
-        return [
-            'value' => sanitize_title($translated),
-            'original' => $translated,
-            'native' => $key,
-            'source' => $source
-        ];
+        try {
+            $labels = [
+                'author' => __('Author', 'default'),
+                'search' => __('Search', 'default'),
+                'comments' => __('Comments', 'default'),
+                'comment-page' => 'comment-page',
+                'page' => _x('Page', 'post type singular name', 'default')
+            ];
+
+            $defaults = [];
+            foreach ($labels as $baseKey => $translated) {
+                $defaults[$baseKey] = [
+                    'value' => $baseKey === 'comment-page' ? $translated : sanitize_title($translated),
+                    'original' => $translated,
+                    'native' => $baseKey,
+                    'source' => 'WordPress Core',
+                    'locale' => $siteLocale
+                ];
+            }
+            $this->defaults[$siteLocale] = $defaults;
+        } finally {
+            if ($switchedLocale) {
+                restore_previous_locale();
+            }
+        }
+
+        return $this->defaults[$siteLocale][$key];
     }
 }

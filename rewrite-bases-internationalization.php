@@ -4,7 +4,7 @@
  * Plugin Name:       Rewrite Bases Internationalization
  * Plugin URI:        https://github.com/timohubois/rewrite-bases-internationalization/
  * Description:       Internationalization of rewrite bases for author, search, comments and page slugs.
- * Version:           1.0
+ * Version:           1.0.1
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Timo Hubois
@@ -45,8 +45,6 @@ if (!file_exists(plugin_dir_path(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE)
         }
     });
 }
-
-load_plugin_textdomain(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE);
 
 register_activation_hook(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE, [Plugin::class, 'activate']);
 register_deactivation_hook(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE, [Plugin::class, 'deactivate']);
