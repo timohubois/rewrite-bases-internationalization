@@ -46,8 +46,6 @@ if (!file_exists(plugin_dir_path(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE)
     });
 }
 
-load_plugin_textdomain(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE);
-
 register_activation_hook(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE, [Plugin::class, 'activate']);
 register_deactivation_hook(REWRITE_BASES_INTERNATIONALIZATION_PLUGIN_FILE, [Plugin::class, 'deactivate']);
 
