@@ -16,7 +16,7 @@ Make WordPress URL paths fit your site's language. Rewrite Bases Internationaliz
 
 For example, you can replace the author base in /author/alex/ with your own word, such as /autor/alex/. You choose the base; the plugin does not translate names or content.
 
-Leave a field blank to use a URL-friendly version of the corresponding translated WordPress Core label. Available defaults depend on the active WordPress locale and its installed translations. Without a translation, the English label is used. Comment pagination is the exception: a blank field keeps WordPress's native comment-page base in every language.
+Leave a field blank to use a URL-friendly version of the corresponding translated WordPress Core label. Available defaults depend on the configured Site Language and its installed WordPress translations, not the administrator's profile language. Without a translation, the English label is used. Comment pagination is the exception: a blank field keeps WordPress's native comment-page base in every language.
 
 **Features**
 
@@ -55,13 +55,15 @@ The Comments Base setting concerns site-wide comment feed URLs, such as /comment
 
 = What happens if I leave a field blank? =
 
-For author, search, comment feeds and general pagination, the plugin takes the matching WordPress Core label, translates it using the active locale, and converts it to a URL-friendly slug using WordPress's sanitize_title() function. If no translation is available, the English label is used. Comment-page Base instead keeps WordPress's literal comment-page default; WordPress does not translate that base.
+For author, search, comment feeds and general pagination, the plugin takes the matching WordPress Core label, translates it using the site's configured Site Language, and converts it to a URL-friendly slug using WordPress's sanitize_title() function. If no translation is available, the English label is used. Comment-page Base instead keeps WordPress's literal comment-page default; WordPress does not translate that base.
 
 These are slugs derived from translated interface labels, not a curated list of localized permalink words. Review the result for your language. Enter a custom value if you want a different term or a fixed base that does not follow translation defaults.
 
+Changing the administrator's profile language does not change these defaults. After changing **Settings > General > Site Language**, save **Settings > Permalinks** to rebuild the rules.
+
 = Does it translate my site or work with WPML or Polylang? =
 
-No. It does not translate posts, pages, author names or search terms, and it does not add language prefixes or per-language settings. Custom values are shared across languages. Blank-field defaults follow the active WordPress locale, which multilingual plugins may change.
+No. It does not translate posts, pages, author names or search terms, and it does not add language prefixes or per-language settings. Custom values are shared across languages. Blank-field defaults follow the configured Site Language, not the administrator's profile language. The plugin does not manage separate bases for different content languages.
 
 WPML, Polylang and other translation plugins are not supported or verified for compatibility. Do not assume this plugin will maintain working URL bases for every language on a multilingual site.
 
@@ -100,13 +102,14 @@ For background, see the [WordPress Rewrite API](https://developer.wordpress.org/
 == Upgrade Notice ==
 
 = 1.0.1 =
-Previously ignored custom Comment-page Base values now take effect and can change comment URLs. After updating, save Settings > Permalinks to rebuild rules and review existing links. The plugin does not add redirects.
+Previously ignored custom Comment-page Base values now take effect and can change comment URLs. Blank defaults now follow Site Language, not the administrator's language. After updating, save Settings > Permalinks to rebuild rules and review links. No redirects are added.
 
 == Changelog ==
 
 = 1.0.1 =
 * Fix Comment-page Base to use WordPress's native comment-pagination property and the /base-2/ URL format.
 * Keep the native comment-page default in every language when the field is blank. Previously ignored saved custom values now take effect and can change existing comment URLs.
+* Keep translated default bases tied to Site Language so an administrator's profile language cannot break frontend URLs.
 * Apply saved rewrite bases before WordPress rebuilds permalink rules, including cached author, search and comment-feed structures.
 * Apply saved bases during activation and let WordPress rebuild rules without the plugin after deactivation.
 * Fix saved-option cleanup when uninstalling without Composer.

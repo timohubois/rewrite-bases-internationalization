@@ -23,6 +23,13 @@ class RewriteBaseLocalizer
         'page' => 'pagination_base'
     ];
 
+    /**
+     * Default metadata calculated once per site locale in this request.
+     *
+     * @var array
+     */
+    private array $defaults = [];
+
     private static ?self $instance = null;
 
     /**
@@ -219,7 +226,7 @@ class RewriteBaseLocalizer
         printf(
             esc_html($descriptionFormat),
             '<code>' . esc_html($default['native']) . '</code>',
-            esc_html(get_locale()),
+            esc_html($default['locale']),
             '<code>' . esc_html($default['value']) . '</code>',
             '<code>' . esc_html($default['original']) . '</code>',
             '<strong>' . esc_html($default['source']) . '</strong>',
@@ -254,23 +261,43 @@ class RewriteBaseLocalizer
      */
     private function getDefaultValue(string $key): array
     {
-        // Core translations determine defaults, except the literal native comment-pagination base.
-        $defaults = [
-            'author' => ['Author', __('Author', 'default'), 'WordPress Core'],
-            'search' => ['Search', __('Search', 'default'), 'WordPress Core'],
-            'comments' => ['Comments', __('Comments', 'default'), 'WordPress Core'],
-            'comment-page' => ['comment-page', 'comment-page', 'WordPress Core'],
-            'page' => ['Page', _x('Page', 'post type singular name', 'default'), 'WordPress Core']
-        ];
+        $siteLocale = get_option('WPLANG', get_locale()) ?: 'en_US';
+        if (isset($this->defaults[$siteLocale])) {
+            return $this->defaults[$siteLocale][$key];
+        }
 
-        $translated = $defaults[$key][1];
-        $source = $defaults[$key][2];
+        $switchedLocale = switch_to_locale($siteLocale);
+        if (!$switchedLocale && determine_locale() !== $siteLocale) {
+            // Match Core's English fallback when the site's language pack is unavailable.
+            $switchedLocale = switch_to_locale('en_US');
+        }
 
-        return [
-            'value' => $key === 'comment-page' ? $translated : sanitize_title($translated),
-            'original' => $translated,
-            'native' => $key,
-            'source' => $source
-        ];
+        try {
+            $labels = [
+                'author' => __('Author', 'default'),
+                'search' => __('Search', 'default'),
+                'comments' => __('Comments', 'default'),
+                'comment-page' => 'comment-page',
+                'page' => _x('Page', 'post type singular name', 'default')
+            ];
+
+            $defaults = [];
+            foreach ($labels as $baseKey => $translated) {
+                $defaults[$baseKey] = [
+                    'value' => $baseKey === 'comment-page' ? $translated : sanitize_title($translated),
+                    'original' => $translated,
+                    'native' => $baseKey,
+                    'source' => 'WordPress Core',
+                    'locale' => $siteLocale
+                ];
+            }
+            $this->defaults[$siteLocale] = $defaults;
+        } finally {
+            if ($switchedLocale) {
+                restore_previous_locale();
+            }
+        }
+
+        return $this->defaults[$siteLocale][$key];
     }
 }
