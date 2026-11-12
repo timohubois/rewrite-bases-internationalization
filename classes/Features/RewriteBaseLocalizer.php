@@ -95,16 +95,19 @@ class RewriteBaseLocalizer
      */
     private function handlePostRequests(): void
     {
-        // Check for valid POST request and validate nonce.
-        if (!$this->isValidPostRequest()) {
+        // Verify the nonce before processing rewrite-base options.
+        if (!isset($_POST[self::NONCE_NAME])) {
+            return;
+        }
+
+        $nonce = sanitize_text_field(wp_unslash($_POST[self::NONCE_NAME]));
+        if (!wp_verify_nonce($nonce, self::NONCE_ACTION)) {
             return;
         }
 
         foreach ($this->bases as $key => $base) {
             $optionName = self::OPTION_PREFIX . $key . '_base';
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in isValidPostRequest.
             if (isset($_POST[$optionName])) {
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in isValidPostRequest.
                 $inputValue = sanitize_title(wp_unslash($_POST[$optionName]));
 
                 if (empty($inputValue)) {
@@ -115,21 +118,6 @@ class RewriteBaseLocalizer
                 update_option($optionName, $inputValue);
             }
         }
-    }
-
-    /**
-     * Check if the current POST request is valid.
-     *
-     * @return bool True if the request is valid, false otherwise.
-     */
-    private function isValidPostRequest(): bool
-    {
-        if (!isset($_POST[self::NONCE_NAME])) {
-            return false;
-        }
-
-        $nonce = sanitize_text_field(wp_unslash($_POST[self::NONCE_NAME]));
-        return wp_verify_nonce($nonce, self::NONCE_ACTION);
     }
 
     /**
@@ -164,8 +152,14 @@ class RewriteBaseLocalizer
     public function renderSectionDescription(): void
     {
         echo '<p>';
-        esc_html_e('Enter custom rewrite bases for author, search, comments and pagination.', 'rewrite-bases-internationalization');
-        esc_html_e('Blank inputs will default to WordPress’s language-specific terms.', 'rewrite-bases-internationalization');
+        esc_html_e(
+            'Enter custom rewrite bases for author, search, comments and pagination.',
+            'rewrite-bases-internationalization'
+        );
+        esc_html_e(
+            'Blank inputs will default to WordPress’s language-specific terms.',
+            'rewrite-bases-internationalization'
+        );
         echo '</p>';
     }
 
@@ -197,7 +191,10 @@ class RewriteBaseLocalizer
             echo '<code>' . esc_url(home_url('/')) . '</code>';
         }
 
-        echo '<input type="text" id="' . esc_attr($optionName) . '" name="' . esc_attr($optionName) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($default['value']) . '">';
+        echo '<input type="text" id="' . esc_attr($optionName)
+            . '" name="' . esc_attr($optionName)
+            . '" value="' . esc_attr($value)
+            . '" placeholder="' . esc_attr($default['value']) . '">';
 
         if ($key === 'page') {
             echo '<code>/2/</code>';
@@ -210,9 +207,15 @@ class RewriteBaseLocalizer
         }
 
         echo '<p class="description">';
+        /* translators: 1: WordPress Core default value, 2: Internationalized value,
+         * 3: Internationalized value (translation), 4: Original value, 5: Translation source
+         */
+        $descriptionFormat = __(
+            'WordPress Core default value: %1$s | Internationalized %2$s: %3$s (Translation of: %4$s, Source: %5$s)',
+            'rewrite-bases-internationalization'
+        );
         printf(
-            // translators: 1: WordPress Core default value, 2: Internationalized value, 3: Internationalized value (translation), 4: Original value, 5: Translation source
-            esc_html__('WordPress Core default value: %1$s | Internationalized %2$s: %3$s (Translation of: %4$s, Source: %5$s)', 'rewrite-bases-internationalization'),
+            esc_html($descriptionFormat),
             '<code>' . esc_html($default['native']) . '</code>',
             esc_html(get_locale()),
             '<code>' . esc_html($default['value']) . '</code>',
@@ -249,12 +252,17 @@ class RewriteBaseLocalizer
      */
     private function getDefaultValue(string $key): array
     {
+        // Core translations intentionally determine the default URL bases.
         $defaults = [
-            'author' => ['Author', __('Author'), 'WordPress Core'],
-            'search' => ['Search', __('Search'), 'WordPress Core'],
-            'comments' => ['Comments', __('Comments'), 'WordPress Core'],
-            'comment-page' => ['Comment Page', __('Comment') . ' ' . _x('Page', 'post type singular name'), 'WordPress Core'],
-            'page' => ['Page', _x('Page', 'post type singular name'), 'WordPress Core']
+            'author' => ['Author', __('Author', 'default'), 'WordPress Core'],
+            'search' => ['Search', __('Search', 'default'), 'WordPress Core'],
+            'comments' => ['Comments', __('Comments', 'default'), 'WordPress Core'],
+            'comment-page' => [
+                'Comment Page',
+                __('Comment', 'default') . ' ' . _x('Page', 'post type singular name', 'default'),
+                'WordPress Core'
+            ],
+            'page' => ['Page', _x('Page', 'post type singular name', 'default'), 'WordPress Core']
         ];
 
         $translated = $defaults[$key][1];
