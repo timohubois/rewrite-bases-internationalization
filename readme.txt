@@ -4,7 +4,7 @@ Tags: permalinks, author, search, comments, pagination
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -97,7 +97,22 @@ Report issues or contribute through the [GitHub repository](https://github.com/t
 
 For background, see the [WordPress Rewrite API](https://developer.wordpress.org/reference/classes/wp_rewrite/) and [Core ticket #1762](https://core.trac.wordpress.org/ticket/1762).
 
+== Upgrade Notice ==
+
+= 1.0.1 =
+Previously ignored custom Comment-page Base values now take effect and can change comment URLs. After updating, save Settings > Permalinks to rebuild rules and review existing links. The plugin does not add redirects.
+
 == Changelog ==
+
+= 1.0.1 =
+* Fix Comment-page Base to use WordPress's native comment-pagination property and the /base-2/ URL format.
+* Keep the native comment-page default in every language when the field is blank. Previously ignored saved custom values now take effect and can change existing comment URLs.
+* Apply saved rewrite bases before WordPress rebuilds permalink rules, including cached author, search and comment-feed structures.
+* Apply saved bases during activation and let WordPress rebuild rules without the plugin after deactivation.
+* Fix saved-option cleanup when uninstalling without Composer.
+* Correct native URL previews and Permalinks form markup; rely on WordPress's automatic translation loading.
+* Simplify internal feature initialization and improve linting and CI checks.
+* Update documentation, WordPress.org listing assets and development tooling. The WordPress 6.0 and PHP 8.0 runtime minimums are unchanged.
 
 = 1.0 =
 * Initial release
