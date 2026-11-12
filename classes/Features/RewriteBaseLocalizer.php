@@ -154,11 +154,14 @@ class RewriteBaseLocalizer
      */
     public function renderSectionDescription(): void
     {
+        wp_nonce_field(self::NONCE_ACTION, self::NONCE_NAME, false);
+
         echo '<p>';
         esc_html_e(
             'Enter custom rewrite bases for author, search, comments and pagination.',
             'rewrite-bases-internationalization'
         );
+        echo ' ';
         esc_html_e(
             'Blank inputs use translated WordPress labels; comment pagination keeps the native comment-page base.',
             'rewrite-bases-internationalization'
@@ -173,26 +176,20 @@ class RewriteBaseLocalizer
      */
     public function renderSettingField(array $args): void
     {
-        wp_nonce_field(self::NONCE_ACTION, self::NONCE_NAME);
+        global $wp_rewrite;
 
         $optionName = $args['label_for'];
         $key = $args['key'];
         $value = $this->getOption($key);
         $default = $this->getDefaultValue($key);
 
-        if ($key === 'page') {
-            echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
-        } elseif ($key === 'author') {
-            echo '<code>' . esc_url(home_url('/')) . '</code>';
-        } elseif ($key === 'search') {
-            echo '<code>' . esc_url(home_url('/')) . '</code>';
-        } elseif ($key === 'comments') {
-            echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
+        $prefix = home_url('/' . $wp_rewrite->root);
+        if ($key === 'author') {
+            $prefix = home_url($wp_rewrite->front);
         } elseif ($key === 'comment-page') {
-            echo '<code>' . esc_url(home_url('%postname%/')) . '</code>';
-        } else {
-            echo '<code>' . esc_url(home_url('/')) . '</code>';
+            $prefix = home_url('%postname%/');
         }
+        echo '<code>' . esc_url($prefix) . '</code>';
 
         echo '<input type="text" id="' . esc_attr($optionName)
             . '" name="' . esc_attr($optionName)
@@ -205,6 +202,8 @@ class RewriteBaseLocalizer
             echo '<code>-2/</code>';
         } elseif ($key === 'author') {
             echo '<code>/%authorname%/</code>';
+        } elseif ($key === 'comments') {
+            echo '<code>/' . esc_html($wp_rewrite->feed_base) . '/</code>';
         } else {
             echo '<code>/</code>';
         }

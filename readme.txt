@@ -89,7 +89,7 @@ The plugin stops applying its custom or translated bases, and WordPress returns 
 
 == Screenshots ==
 
-1. The Rewrite Bases section in Settings > Permalinks, showing the five fields and English defaults. In version 1.0, Comment-page Base is visible but does not change comment-pagination URLs.
+1. The Rewrite Bases section in Settings > Permalinks, showing five fields and a custom Comment-page Base of replies with WordPress's native -2/ URL format.
 
 == Want to contribute? ==
 
