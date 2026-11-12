@@ -16,13 +16,14 @@ Make WordPress URL paths fit your site's language. Rewrite Bases Internationaliz
 
 For example, you can replace the author base in /author/alex/ with your own word, such as /autor/alex/. You choose the base; the plugin does not translate names or content.
 
-Leave a field blank to use a URL-friendly version of the corresponding translated WordPress Core label. Available defaults depend on the active WordPress locale and its installed translations. Without a translation, the English label is used.
+Leave a field blank to use a URL-friendly version of the corresponding translated WordPress Core label. Available defaults depend on the active WordPress locale and its installed translations. Without a translation, the English label is used. Comment pagination is the exception: a blank field keeps WordPress's native comment-page base in every language.
 
 **Features**
 
 * Customize the author archive and search URL bases.
 * Customize the base used for site-wide comment feeds.
 * Customize the pagination base used in URLs such as /page/2/.
+* Customize comment-pagination URLs, such as /my-post/replies-2/.
 * Use translated WordPress Core labels as defaults, or enter your own values.
 * Manage the settings in the existing Permalinks screen, with no separate settings page or external service.
 
@@ -30,7 +31,7 @@ Leave a field blank to use a URL-friendly version of the corresponding translate
 
 This is not a multilingual content or automatic translation plugin. It stores one custom value per base, not separate values for each language. WPML, Polylang and other multilingual plugins are not supported or verified for compatibility.
 
-Version 1.0 also displays a **Comment-page Base** field, but that field does not update the WordPress property used for comment pagination. Do not rely on it to change comment-page URLs. See the FAQ for details.
+Comment-page Base now changes comment-pagination URLs. Previously ignored saved custom values take effect; a blank field keeps the native comment-page base. Review existing comment links when updating, and configure redirects separately where needed.
 
 Changing URL bases can break existing links or conflict with other routes. Test changes on a staging site and plan any necessary redirects before changing a public site.
 
@@ -54,7 +55,7 @@ The Comments Base setting concerns site-wide comment feed URLs, such as /comment
 
 = What happens if I leave a field blank? =
 
-The plugin takes the matching WordPress Core label, such as Author, Search, Comments or Page, translates it using the active locale, and converts it to a URL-friendly slug using WordPress's sanitize_title() function. If no translation is available, the English label is used.
+For author, search, comment feeds and general pagination, the plugin takes the matching WordPress Core label, translates it using the active locale, and converts it to a URL-friendly slug using WordPress's sanitize_title() function. If no translation is available, the English label is used. Comment-page Base instead keeps WordPress's literal comment-page default; WordPress does not translate that base.
 
 These are slugs derived from translated interface labels, not a curated list of localized permalink words. Review the result for your language. Enter a custom value if you want a different term or a fixed base that does not follow translation defaults.
 
@@ -64,9 +65,11 @@ No. It does not translate posts, pages, author names or search terms, and it doe
 
 WPML, Polylang and other translation plugins are not supported or verified for compatibility. Do not assume this plugin will maintain working URL bases for every language on a multilingual site.
 
-= Why does Comment-page Base not change my comment pagination URLs? =
+= How does Comment-page Base change comment pagination URLs? =
 
-In version 1.0, the setting is assigned to comment-page_base rather than WordPress's comments_pagination_base property. The field is visible, but does not change the base WordPress uses for comment-page URLs. This is a known implementation limitation; the other four base settings are separate.
+Enable comment pagination in **Settings > Discussion**. A Comment-page Base of replies changes /my-post/comment-page-2/ to /my-post/replies-2/. WordPress may use the bare post URL for the default comment page. Individual comment links keep their #comment-ID anchors.
+
+The option name and saved values are unchanged; no migration is needed. Custom values saved before this fix now affect comment URLs. A blank field keeps WordPress's native comment-page base, including in non-English locales. WordPress handles page numbers, anchors and default-page behavior. Save **Settings > Permalinks** to rebuild the rules. Plain permalinks continue to use the cpage query parameter rather than a custom URL base.
 
 = What if my new URLs return 404 errors? =
 

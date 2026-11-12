@@ -11,10 +11,7 @@ class RewriteBaseLocalizer
     private const NONCE_NAME = 'rewrite-bases-internationalization_nonce';
 
     /**
-     * Array of rewrite bases.
-     *
-     * The keys are the hardcoded rewrite bases from the WordPress core WP_Rewrite class.
-     * The values are used as identifiers for the plugin options.
+     * Map persistent option keys to WordPress rewrite properties.
      *
      * @var array $bases Array of rewrite bases.
      */
@@ -22,7 +19,7 @@ class RewriteBaseLocalizer
         'author' => 'author_base',
         'search' => 'search_base',
         'comments' => 'comments_base',
-        'comment-page' => 'comment-page_base',
+        'comment-page' => 'comments_pagination_base',
         'page' => 'pagination_base'
     ];
 
@@ -118,6 +115,9 @@ class RewriteBaseLocalizer
                 update_option($optionName, $inputValue);
             }
         }
+
+        // Apply saved values before WordPress rebuilds the permalink rules.
+        $this->updateRewriteBases();
     }
 
     /**
@@ -157,7 +157,7 @@ class RewriteBaseLocalizer
             'rewrite-bases-internationalization'
         );
         esc_html_e(
-            'Blank inputs will default to WordPress’s language-specific terms.',
+            'Blank inputs use translated WordPress labels; comment pagination keeps the native comment-page base.',
             'rewrite-bases-internationalization'
         );
         echo '</p>';
@@ -199,7 +199,7 @@ class RewriteBaseLocalizer
         if ($key === 'page') {
             echo '<code>/2/</code>';
         } elseif ($key === 'comment-page') {
-            echo '<code>/2/</code>';
+            echo '<code>-2/</code>';
         } elseif ($key === 'author') {
             echo '<code>/%authorname%/</code>';
         } else {
@@ -252,16 +252,12 @@ class RewriteBaseLocalizer
      */
     private function getDefaultValue(string $key): array
     {
-        // Core translations intentionally determine the default URL bases.
+        // Core translations determine defaults, except the literal native comment-pagination base.
         $defaults = [
             'author' => ['Author', __('Author', 'default'), 'WordPress Core'],
             'search' => ['Search', __('Search', 'default'), 'WordPress Core'],
             'comments' => ['Comments', __('Comments', 'default'), 'WordPress Core'],
-            'comment-page' => [
-                'Comment Page',
-                __('Comment', 'default') . ' ' . _x('Page', 'post type singular name', 'default'),
-                'WordPress Core'
-            ],
+            'comment-page' => ['comment-page', 'comment-page', 'WordPress Core'],
             'page' => ['Page', _x('Page', 'post type singular name', 'default'), 'WordPress Core']
         ];
 
@@ -269,7 +265,7 @@ class RewriteBaseLocalizer
         $source = $defaults[$key][2];
 
         return [
-            'value' => sanitize_title($translated),
+            'value' => $key === 'comment-page' ? $translated : sanitize_title($translated),
             'original' => $translated,
             'native' => $key,
             'source' => $source
